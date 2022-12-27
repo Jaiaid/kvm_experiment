@@ -1,0 +1,11 @@
+.vscode/*
+*.out
+*.img
+*.xml
+STREAM/
+slurm/
+parsec-benchmark/
+libvirt/
+dataset/
+vm*
+*.bkp*
