@@ -53,7 +53,8 @@ int main()
 
         // get memory node configuration from scheduler algorithm
         // function will copy it at provided char*
-        random_alloc_conf_generation(&numa_dist_matrix[0][0], NUMA_NODE_COUNT, &configuration_build[preamble_length]);
+        // random_alloc_conf_generation(&numa_dist_matrix[0][0], NUMA_NODE_COUNT, &configuration_build[preamble_length]);
+        interleave_alloc_conf_generation(&numa_dist_matrix[0][0], NUMA_NODE_COUNT, &configuration_build[preamble_length]);
         // copy the remaining part to build the final configuration build at proper offset
         int offset = strlen(configuration_build);
         strcpy(&configuration_build[offset], configuration_footer);
@@ -63,15 +64,19 @@ int main()
 
         printf("allocating vm %d with %d cpu and %d MiB memory\n", allocated_vm_count, cpu, memory_mib);
         printf("defining vm\n");
-        snprintf(vm_define_cmd, MAX_CONFIGURATION_FILE_CHAR_COUNT, 
+        snprintf(vm_define_cmd, MAX_CONFIGURATION_FILE_CHAR_COUNT,
         "../scripts/define_vm.sh -n %s -t %s -m %d -c %d -i ../image/focal-server-cloudimg-amd64.img\n", vm_name.c_str(), template_name.c_str(), memory_mib, cpu);
-        snprintf(vm_start_cmd, MAX_CONFIGURATION_FILE_CHAR_COUNT, "virsh start %s\n", vm_name.c_str());
-
         printf("%s\n%s\n", vm_define_cmd, vm_start_cmd);
 
         system->RunCommand(vm_define_cmd);
-        system->RunCommand(vm_start_cmd);
         allocated_vm_count++;
+    }
+
+    for(int i=0;i<allocated_vm_count;i++)
+    {
+        std::string vm_name = "vm" + std::to_string(i);
+        snprintf(vm_start_cmd, MAX_CONFIGURATION_FILE_CHAR_COUNT, "virsh start %s\n", vm_name.c_str());
+        system->RunCommand(vm_start_cmd);
     }
 
     return 0;
