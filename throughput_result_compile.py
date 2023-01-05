@@ -73,15 +73,13 @@ if __name__=="__main__":
                     add_host_vals[1] += float(result.groups()[1])
                     add_host_vals[2] += float(result.groups()[2])
                     add_host_vals[3] += float(result.groups()[3])
-        
-        print(path)
+
         # average all the samples for each operation
         for i in range(4):
             copy_host_vals[i] /= val_occurance
             scale_host_vals[i] /= val_occurance
             triad_host_vals[i] /= val_occurance
             add_host_vals[i] /= val_occurance
-        print
         
         avg_copy_throughput_MB_per_host.append(copy_host_vals)
         avg_scale_throughput_MB_per_host.append(scale_host_vals)
