@@ -104,8 +104,10 @@ void random_alloc_conf_generation(int* numa_dist_matrix, int node_count, char* c
 
 void interleave_alloc_conf_generation(int* numa_dist_matrix, int node_count, char* conf_buf)
 {
-
+    // interleaved memory allocation across all available NUMA node
+    snprintf(conf_buf, MAX_CONFIGURATION_FILE_CHAR_COUNT, NUMATUNE_START_TAG "<memory mode='interleave' nodeset='0-%d'/>"  NUMATUNE_FINISH_TAG, node_count-1);
 }
+
 
 void local_pref_interleaved_alloc_conf_generation(int* numa_dist_matrix, int node_count, char* conf_buf)
 {
