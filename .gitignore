@@ -9,3 +9,4 @@ libvirt/
 dataset/
 vm*
 *.bkp*
+exp_result/
