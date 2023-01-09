@@ -2,6 +2,7 @@ import re
 import argparse
 import os
 import matplotlib.pyplot as plot
+import numpy as np
 
 REGEX_COPY_RESULT_OUTPUT = \
     r"Copy:\s*(\d+\.?\d*)\s*(\d+\.?\d*)\s*(\d+\.?\d*)\s*(\d+\.?\d*)"
@@ -31,7 +32,12 @@ if __name__=="__main__":
     combined_add_fig, combined_add_fig_ax = plot.subplots()
     combined_triad_fig, combined_triad_fig_ax = plot.subplots()
     
+    # to show the latency change in box plot
+    combined_avg_latency_fig, combined_avg_latency_fig_ax = plot.subplots()
     
+    # to hold all the values of box plots for different label
+    latencies = {"Add": [], "Copy": [], "Scale": [], "Triad": []}
+
     for filename in os.listdir(args.input_dir):
         if not filename.endswith('.expresult'):
             continue
@@ -94,12 +100,26 @@ if __name__=="__main__":
         fig_ax.legend()
         fig.savefig(os.path.join(args.input_dir, "vm_{0}.png".format(filename)))
         
+        # plot all vms throughput in same plot
         combined_copy_fig_ax.plot(x, copy_host_vals[0])
         combined_scale_fig_ax.plot(x, scale_host_vals[0])
         combined_add_fig_ax.plot(x, add_host_vals[0])
         combined_triad_fig_ax.plot(x, triad_host_vals[0])
+
+        latencies["Copy"].append(np.mean(copy_host_vals[1]))
+        latencies["Add"].append(np.mean(add_host_vals[1]))
+        latencies["Scale"].append(np.mean(scale_host_vals[1]))
+        latencies["Triad"].append(np.mean(triad_host_vals[1]))
+
+
+    # plot all vms avg latency in same plot as box plots
+    combined_avg_latency_fig_ax.boxplot(latencies.values())
+    combined_avg_latency_fig_ax.set_xticklabels(latencies.keys())
     
     combined_copy_fig.savefig(os.path.join(args.input_dir, "all_vm_change_throughput_copy_operation.png"))
     combined_scale_fig.savefig(os.path.join(args.input_dir, "all_vm_change_throughput_scale_operation.png"))
     combined_triad_fig.savefig(os.path.join(args.input_dir, "all_vm_change_throughput_triad_operation.png"))
     combined_add_fig.savefig(os.path.join(args.input_dir, "all_vm_change_throughput_add_operation.png"))
+
+    combined_avg_latency_fig.savefig(os.path.join(args.input_dir, "all_vm_avg_latency_boxplots.png"))
+
