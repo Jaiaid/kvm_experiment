@@ -22,6 +22,7 @@ int numa_dist_matrix[NUMA_NODE_COUNT][NUMA_NODE_COUNT] = {{1}};//{{10,21},{21,10
 
 void random_alloc_conf_generation(int* numa_dist_matrix, int node_count, char* conf_buf);
 void interleave_alloc_conf_generation(int* numa_dist_matrix, int node_count, char* conf_buf);
+void single_node_round_robin_alloc_conf_generation(int* numa_dist_matrix, int node_count, char* conf_buf);
 void local_pref_interleaved_alloc_conf_generation(int* numa_dist_matrix, int node_count, char* conf_buf);
 
 
@@ -54,7 +55,8 @@ int main()
         // get memory node configuration from scheduler algorithm
         // function will copy it at provided char*
         // random_alloc_conf_generation(&numa_dist_matrix[0][0], NUMA_NODE_COUNT, &configuration_build[preamble_length]);
-        interleave_alloc_conf_generation(&numa_dist_matrix[0][0], NUMA_NODE_COUNT, &configuration_build[preamble_length]);
+        // interleave_alloc_conf_generation(&numa_dist_matrix[0][0], NUMA_NODE_COUNT, &configuration_build[preamble_length]);
+        single_node_round_robin_alloc_conf_generation(&numa_dist_matrix[0][0], NUMA_NODE_COUNT, &configuration_build[preamble_length]);
         // copy the remaining part to build the final configuration build at proper offset
         int offset = strlen(configuration_build);
         strcpy(&configuration_build[offset], configuration_footer);
@@ -108,6 +110,14 @@ void interleave_alloc_conf_generation(int* numa_dist_matrix, int node_count, cha
     snprintf(conf_buf, MAX_CONFIGURATION_FILE_CHAR_COUNT, NUMATUNE_START_TAG "<memory mode='interleave' nodeset='0-%d'/>"  NUMATUNE_FINISH_TAG, node_count-1);
 }
 
+void single_node_round_robin_alloc_conf_generation(int* numa_dist_matrix, int node_count, char* conf_buf)
+{
+    // single node round robin across all available NUMA node
+    static int memnode_id = 0;
+    snprintf(conf_buf, MAX_CONFIGURATION_FILE_CHAR_COUNT, NUMATUNE_START_TAG MEMORY_NODE_TAG_FMTSTR NUMATUNE_FINISH_TAG, std::to_string(memnode_id).c_str());
+    memnode_id++;
+    memnode_id%=node_count;
+}
 
 void local_pref_interleaved_alloc_conf_generation(int* numa_dist_matrix, int node_count, char* conf_buf)
 {
