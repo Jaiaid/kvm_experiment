@@ -3,6 +3,7 @@
 *.img
 *.xml
 STREAM/
+NPB-CPP/
 slurm/
 parsec-benchmark/
 libvirt/
