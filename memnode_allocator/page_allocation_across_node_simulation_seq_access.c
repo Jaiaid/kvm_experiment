@@ -199,8 +199,8 @@ static double	bytes[4] = {
         3 * sizeof(STREAM_TYPE) * STREAM_ARRAY_SIZE
 };
 
-#define NUMA_NODE_COUNT 2//1
-int numa_dist_matrix[NUMA_NODE_COUNT][NUMA_NODE_COUNT] = {{10,21},{21,10}};
+#define NUMA_NODE_COUNT 1
+int numa_dist_matrix[NUMA_NODE_COUNT][NUMA_NODE_COUNT] = {{10}};//{{10,21},{21,10}};
 
 extern double mysecond();
 extern void checkSTREAMresults();
