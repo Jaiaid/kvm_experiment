@@ -1,6 +1,7 @@
 .vscode/*
 *.out
 *.img
+*.png
 *.xml
 STREAM/
 NPB-CPP/
