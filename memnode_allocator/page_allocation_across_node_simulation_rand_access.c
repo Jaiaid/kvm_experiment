@@ -550,10 +550,12 @@ int __alloc_touched_memory_mixed() {
     int cur_node_page_count = 0;
     for(i=0;i<page_count;i++, cur_node_page_count++, node%=NUMA_NODE_COUNT)
     {
-        if (allocated_page_per_node[node] >= cur_node_page_count) {
+        if (cur_node_page_count >= allocated_page_per_node[node]) {
             node++;
             node%=NUMA_NODE_COUNT;
+            cur_node_page_count = 0;
         }
+
         a[i] = numa_alloc_onnode(PAGE_SIZE, node);
         a[i][rand()%(PAGE_SIZE/sizeof(STREAM_TYPE))] = rand();
         b[i] = numa_alloc_onnode(PAGE_SIZE, node);

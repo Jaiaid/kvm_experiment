@@ -199,8 +199,8 @@ static double	bytes[4] = {
         3 * sizeof(STREAM_TYPE) * STREAM_ARRAY_SIZE
 };
 
-#define NUMA_NODE_COUNT 1
-int numa_dist_matrix[NUMA_NODE_COUNT][NUMA_NODE_COUNT] = {{1}};//{{10,21},{21,10}};
+#define NUMA_NODE_COUNT 2//1
+int numa_dist_matrix[NUMA_NODE_COUNT][NUMA_NODE_COUNT] = {{10,21},{21,10}};
 
 extern double mysecond();
 extern void checkSTREAMresults();
@@ -556,13 +556,8 @@ int __alloc_touched_memory_mixed() {
     c = malloc(sizeof(STREAM_TYPE**)*page_count);
 
     int cur_node_page_count = 0;
-    for(i=0;i<page_count;i++, node++, node%=NUMA_NODE_COUNT)
+    for(i=0;i<page_count;node++, node%=NUMA_NODE_COUNT)
     {
-        if (allocated_page_per_node[node] >= cur_node_page_count) {
-            node++;
-            node%=NUMA_NODE_COUNT;
-        }
-
         a[i] = numa_alloc_onnode(PAGE_SIZE * allocated_page_per_node[node], node);
         a[i][rand()%(PAGE_SIZE/sizeof(STREAM_TYPE))] = rand();
         b[i] = numa_alloc_onnode(PAGE_SIZE * allocated_page_per_node[node], node);
@@ -570,7 +565,7 @@ int __alloc_touched_memory_mixed() {
         c[i] = numa_alloc_onnode(PAGE_SIZE * allocated_page_per_node[node], node);
         c[i][rand()%(PAGE_SIZE/sizeof(STREAM_TYPE))] = rand();
 
-        for(i++;allocated_page_per_node[node] < cur_node_page_count;i++, cur_node_page_count++) {
+        for(cur_node_page_count=1, i++;i < page_count && cur_node_page_count < allocated_page_per_node[node];i++, cur_node_page_count++) {
             a[i] = (double*)(((char *)a[i-1]) + PAGE_SIZE);
             a[i][rand()%(PAGE_SIZE/sizeof(STREAM_TYPE))] = rand();
             b[i] = (double*)(((char *)b[i-1]) + PAGE_SIZE);
